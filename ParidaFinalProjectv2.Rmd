@@ -1,0 +1,335 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+library(rio)
+library(dplyr)
+library(ggplot2)
+library(stargazer)
+library(sjPlot)
+library(sjmisc)
+library(pscl)
+```
+
+```{r}
+data = import("egypt_wave3.csv")
+```
+
+# Subsetting relevant columns
+
+```{r}
+df = data %>%
+        select(ee1, ti2, pe6, psy5)
+head(df)
+```
+# ee1 update
+
+
+```{r}
+unique(df$ee1)
+```
+
+
+
+
+* In the context of Egypt, respondents only selected the answer choices shown above
+
+```{r}
+df <- df %>%
+  mutate(EconomyToday = ifelse(ee1 %in% c(8), NA, ee1))
+unique(df$EconomyToday)
+```
+```{r}
+df$EconomyTodayf <- factor(df$EconomyToday, levels = c(1, 2, 3, 4, 5), labels = c(" Very bad", "Bad", "So-so", "Good", "Very good"))
+levels(df$TrustInGovtf)
+```
+
+* Only the number 8 option takes on NA
+
+```{r}
+df <- df %>%
+  mutate(EconomyToday2 = ifelse(EconomyToday %in% c(1,2,3), 0, 1))
+table(df$EconomyToday2)
+```
+
+
+# ti2 update
+
+```{r}
+unique(df$ti2)
+```
+
+```{r}
+df <- df %>%
+  mutate(TrustInGovt = ifelse(ti2 %in% c(8, 9), NA, ti2))
+unique(df$TrustInGovt)
+```
+
+* Options 8 and 9 become NAs
+
+I ADDED \n IN THE FACTOR LABELS. THIS INSERTS A LINE BREAK IN THE PLOTS LATER.
+
+```{r}
+df$TrustInGovtf <- factor(df$TrustInGovt, levels = c(1, 2, 3, 4), labels = c(" None \nat All", "Not \na Lot", "Not \nVery Much", "Great \nDeal"))
+levels(df$TrustInGovtf)
+```
+
+# pe6 update
+
+```{r}
+unique(df$pe6)
+```
+
+```{r}
+df <- df %>%
+  mutate(FreeElection = ifelse(pe6 %in% c(8, 9), NA, pe6))
+unique(df$FreeElection)
+```
+
+* Options 8 and 9 become NAs
+
+SAME THING. I ADDED \n TO INSERT LINE BREAKS IN THE PLOTS.
+
+```{r}
+df$FreeElectionf <- factor(df$FreeElection, levels = c(1, 2, 3, 4), labels = c(" Not Free \nand Fair", "Free and fair \nwith major problems", "Free fair \nwith minor problems", "Completely"))
+levels(df$FreeElectionf)
+```
+
+# psy5 update
+
+```{r}
+unique(df$psy5)
+```
+
+* contains nothing that needs to be changed to NA
+```{r}
+levels(df$PoliticsInterestsf)
+
+```
+
+```{r}
+df <- df %>%
+  rename(PoliticsInterests =  psy5)
+unique(df$PoliticsInterests)
+```
+
+
+SAME THING. I ADDED \n TO INSERT LINE BREAKS IN THE PLOTS.
+
+
+```{r}
+df$PoliticsInterestsf <- factor(df$PoliticsInterests, levels = c(1, 2, 3, 4), labels = c(" Not at all \ninterested", "Not very \ninterested", "Somewhat \ninterested", "Very \ninterested"))
+levels(df$PoliticsInterestsf)
+```
+
+
+summary of the data
+```{r}
+summary(df)
+```
+```{r}
+sd(df$EconomyToday)
+sd(df$TrustInGovt)
+sd(df$FreeElection)
+sd(df$PoliticsInterests)
+
+
+
+```
+YOU NEED TO GET LABELS ON YOUR PLOT. SINCE ECONOMYTODAY IS A CATEGORICAL VARIABLE THE PLOT SHOULD SAY factor(EconomyToday) AND THE PLOT TYPE SHOULD BE BAR. THEN YOU CAN ADD LABELS AS BELOW WITH THE scale_x_discrete() FUNCTION. I STARTED THIS FOR YOU.
+
+```{r}
+median (df$EconomyToday)
+median (df$TrustInGovt)
+median (df$FreeElection)
+median((df$PoliticsInterests))
+```
+
+
+Variable distribution for ee1
+```{r}
+ggplot(df, aes(x = factor(EconomyToday))) +
+  geom_bar(fill = "skyblue", color = "black") +
+  scale_x_discrete(na.translate = FALSE, labels = c("First label", "Second Label", "Third Label", "Fourth Label")) +
+  labs(title = "Figure 1: Distribution of Economy Today", x = "Economy Today", y = "Frequency")
+
+
+```
+variable distrivution for ee2
+
+USE THE FACTOR VERSION OF TRUSTINGOVT TO GET LABELS.
+
+```{r}
+ggplot(df, aes(x = TrustInGovt)) +
+  geom_histogram(binwidth = 1, fill = "pink", color = "black") +
+  labs(title = "Figure 2: Distribution of Trust In Government", x = "Trust In Govt", y = "Frequency")
+```
+
+variable distribution for ti2
+
+THIS SHOULD BE A HISTOGRAM AND USE THE FACTOR VERSION OF FREEELECTION TO GET LABELS.
+
+```{r}
+ggplot(df, aes(x = FreeElection)) +
+  geom_histogram(binwidth = 1, fill = "green", color = "black") +
+  labs(title = "Figure 3: Distribution of Free Election", x = "Free Election", y = "Frequency")
+```
+variable distibution for sc1
+
+THIS SHOULD BE A HISTOGRAM AND USE THE FACTOR VERSION OF FREEELECTION TO GET LABELS.
+
+```{r}
+ggplot(df, aes(x = PoliticsInterests)) +
+  geom_histogram(binwidth = 1, fill = "red", color = "black") +
+  labs(title = "Figure 4: Distribution of Politics Interests", x = "Politics Interests", y = "Frequency")
+```
+Relationship between outcome and explanatory variables
+
+ADD scale_x_discrete(na.translate = FALSE) TO REMOVE THE NAS. USE THE FACTOR VERSION OF ECONOMYTODAY THAT YOU CREATED ABOVE SO THAT YOUR LEGEND IS LABELED.
+
+```{r}
+ggplot(df, aes(x = TrustInGovtf, fill = as.factor(EconomyToday))) +
+  geom_bar(position = "dodge", stat = "count") +
+  labs(title = "Figure 5: Distribution of EconomyToday by TrustInGovt",
+       x = "TrustInGovt Levels",
+       y = "Frequency",
+       fill = "EconomyToday")
+```
+```{r}
+ggplot(df, aes(x = TrustInGovtf, y = EconomyTodayf, fill = TrustInGovtf)) +
+  geom_boxplot() +
+  labs(title = "Figure 6: Relationship Between Economy Today and Trust in Government",
+       x = "Trust In Govt Levels",
+       y = "Economy Today") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+```{r}
+ggplot(df, aes(x = FreeElectionf, y = EconomyTodayf, fill = FreeElectionf)) +
+  geom_boxplot() +
+  labs(title = "Figure 7: Relationship between Economy Today and Free Election",
+       x = "Free Election Levels",
+       y = "Economy Today") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+```
+politics interest
+```{r}
+ggplot(df, aes(x = PoliticsInterestsf, y = EconomyTodayf, fill = PoliticsInterestsf)) +
+  geom_boxplot() +
+  labs(title = "Figure 8: Relationship between Economy Today and Interest in Politics",
+       x = "Politics Interest",
+       y = "Economy Today") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+```{r}
+
+logistic_model <- glm(EconomyTodayf ~  + TrustInGovtf + FreeElectionf + PoliticsInterestsf, 
+                      data = df, family = "binomial")
+
+summary(logistic_model)
+
+```
+
+ADD covariate.labels ARGUMENT TO FIX SPACING/NAMES.
+
+```{r}
+models <- list(logistic_model)
+stargazer(models,
+          title = "Logistic Regression Results",
+          align = TRUE,      
+          dep.var.caption = "Dependent Variable",
+          covariate.labels = c("Not a lot of trust", "Not very much trust", "Great deal of trust", "Free/Fair, major problems", "Free/Fair, minor problems", "Completely Free/Fair", "Not very interested", "Somewhat interested", "Very interested"), 
+          type = "text",     
+          style = "AER",     
+          digits = 3     )
+```
+
+HERE SOME OF THE PROBLEM WITH OVERLAPPING LABELS GOES AWAY BY SHRINKING THE FONT AND SOME BY ADDING \n TO THE VARIABLE LABELS ABOVE.
+
+```{r}
+plot_model(logistic_model, type = "pred", terms = c("TrustInGovtf", "FreeElectionf", "PoliticsInterestsf")) +
+  theme(axis.title.x = element_text(color="black", size=10),
+        axis.title.y = element_text(color="black", size=10),
+        plot.title = element_text(color="blue", size=12, face="bold"),
+        axis.text.x = element_text(size=8))
+```
+
+
+1. I did not present the mean in my original set. I presented the SD. I added a section where I looked at the median. 
+
+2. I am not understanding, as I tried to clearly explain all that I was doing during my communication in emails and office hours as well as on the final site. If I could have more clarification on this point, it would help me understand better what you are asking. 
+
+3. In my dataset, I chose to use logistic regression as it is suitable for modeling binary outcomes. The variable of interest, `EconomyTodayf`, indicates whether individuals perceive the economy as "Good" or "Bad." Logistic regression is well-suited for such scenarios where the dependent variable has two possible categories. I included explanatory variables like `TrustInGovtf`, `FreeElectionf`, and `PoliticsInterestsf` to understand their impact on the likelihood of having a positive evaluation of the economy. The logistic regression model provides coefficients for each explanatory variable. I can offer insights into how changes in the explanatory variables influence the odds of perceiving the economy positively. 
+
+4. 
+
+1. TrustInGovtf:
+   - Direction: On average, an individual who has a "Great deal of trust" in the government is significantly more likely to have a more positive evaluation of the economy than someone who has no trust at all.
+   - Statistical Significance: The coefficient for TrustInGovtf is statistically significant.
+
+2. FreeElectionf:
+   - Direction: On average, an individual who perceives elections as "Completely Free/Fair" is significantly more likely to have a more positive evaluation of the economy than someone who thinks elections are not free and fair.
+   - Statistical Significance: The coefficient for FreeElectionf is statistically significant.
+
+3. PoliticsInterestsf:
+   - Direction: On average, an individual who is "Very interested" in politics is significantly more likely to have a more positive evaluation of the economy than someone who is not interested at all.
+   - Statistical Significance: The coefficient for PoliticsInterestsf is statistically significant.
+
+These interpretations suggest that each of these factors (trust in government, perception of election fairness, and interest in politics) has a significant association with the likelihood of having a positive evaluation of the economy. It provides valuable insights into the relationships between these explanatory variables and the outcome variable in the context of Egypt's wave data.
+
+6. 
+
+
+1. TrustInGovtf Predicted Values:
+   - Values of Other Variables: The predictions are based on individuals having the modal values for variables not included in the plot, such as FreeElectionf and PoliticsInterestsf.
+   - Substantive Interpretation: The expected evaluation of the economy is higher for individuals with a "Great deal of trust" in the government, compared to those with no trust at all. For instance, these predictions are made for an individual who is very interested in politics and thinks elections are completely free.
+   - **Statistical Significance: We observe a statistically significant difference in the predicted evaluations across varying levels of trust in government.
+
+2. FreeElectionf Predicted Values:
+   - Values of Other Variables: The predictions assume individuals with modal values for variables not in the plot, such as TrustInGovtf and PoliticsInterestsf.
+   - Substantive Interpretation: The expected evaluation of the economy is higher for individuals perceiving elections as "Completely Free/Fair," compared to those who think elections are not free and fair. These predictions are made for an individual with a great deal of trust in the government and a very high interest in politics.
+   - **Statistical Significance: The difference in predicted evaluations is statistically significant based on the varying perceptions of election fairness.
+
+3. PoliticsInterestsf Predicted Values:
+   - Values of Other Variables: Predictions assume individuals with modal values for variables not shown, like TrustInGovtf and FreeElectionf.
+   - Substantive Interpretation: The expected evaluation of the economy is higher for individuals who are "Very interested" in politics, compared to those with no interest. These predictions are made for an individual with a great deal of trust in the government and a perception of elections as completely free and fair.
+   - Statistical Significance: A statistically significant difference is observed in predicted evaluations across different levels of interest in politics.
+
+By using modal values for other variables, we gain insights into the magnitude and meaning of the effects of the explanatory variables on the expected evaluations of the economy. Additionally, assessing statistical significance provides confidence in the observed differences in predictions.
+
+7. 
+
+
+```{r}
+hitmiss (logistic_model)
+
+predict(logistic_model, newdata = data.frame(TrustInGovtf = 25, FreeElectionf = "Not Free \nand Fair", PoliticsInterestsf = 75), type = "response")
+predict(logistic_model, newdata = data.frame(TrustInGovtf = 50, FreeElectionf = "Not Free \nand Fair", PoliticsInterestsf = 75), type = "response")
+predict(logistic_model, newdata = data.frame(TrustInGovtf = 75, FreeElectionf = "Completely", PoliticsInterestsf = 100), type = "response")
+
+
+```
+```{r}
+# Generate predictions
+predicted <- predict(logistic_model, type = "response") > 0.5
+
+# Create confusion matrix
+conf_matrix <- table(df$EconomyTodayf, predicted)
+conf_matrix
+
+```
+
+```{r}
+length (df$EconomyTodayf)
+length(predicted)
+```
+
