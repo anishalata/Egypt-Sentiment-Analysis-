@@ -264,11 +264,9 @@ plot_model(logistic_model, type = "pred", terms = c("TrustInGovtf", "FreeElectio
 ```
 
 
-1. I did not present the mean in my original set. I presented the SD. I added a section where I looked at the median. 
 
-2. I am not understanding, as I tried to clearly explain all that I was doing during my communication in emails and office hours as well as on the final site. If I could have more clarification on this point, it would help me understand better what you are asking. 
 
-3. In my dataset, I chose to use logistic regression as it is suitable for modeling binary outcomes. The variable of interest, `EconomyTodayf`, indicates whether individuals perceive the economy as "Good" or "Bad." Logistic regression is well-suited for such scenarios where the dependent variable has two possible categories. I included explanatory variables like `TrustInGovtf`, `FreeElectionf`, and `PoliticsInterestsf` to understand their impact on the likelihood of having a positive evaluation of the economy. The logistic regression model provides coefficients for each explanatory variable. I can offer insights into how changes in the explanatory variables influence the odds of perceiving the economy positively. 
+ In my dataset, I chose to use logistic regression as it is suitable for modeling binary outcomes. The variable of interest, `EconomyTodayf`, indicates whether individuals perceive the economy as "Good" or "Bad." Logistic regression is well-suited for such scenarios where the dependent variable has two possible categories. I included explanatory variables like `TrustInGovtf`, `FreeElectionf`, and `PoliticsInterestsf` to understand their impact on the likelihood of having a positive evaluation of the economy. The logistic regression model provides coefficients for each explanatory variable. I can offer insights into how changes in the explanatory variables influence the odds of perceiving the economy positively. 
 
 4. 
 
