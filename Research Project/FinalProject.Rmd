@@ -1,0 +1,132 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+library(rio)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+df = import("egypt_wave3.csv")
+```
+
+# Subsetting relevant columns
+
+```{r}
+df = df %>%
+        select(ee1, ee2, ti1, ti2, sd1)
+head(df)
+```
+# ee1 update
+
+```{r}
+unique(df$ee1)
+```
+
+* In the context of Egypt, respondents only selected the answer choices shown above
+
+```{r}
+df <- df %>%
+  mutate(EconomyToday = ifelse(ee1 %in% c(-1, 0, 7, 8, 9), NA, ee1))
+unique(df$EconomyToday)
+```
+
+* Only the number 8 option takes on NA
+
+# ee2 update
+
+```{r}
+unique(df$ee2)
+```
+
+```{r}
+df <- df %>%
+  mutate(EconomyPast = ifelse(ee2 %in% c(-1, 0, 7, 8, 9), NA, ee2))
+unique(df$EconomyPast)
+```
+
+* Options 8 and 9 become NAs
+
+# ti1 question not asked in Arab Barometer
+
+```{r}
+unique(df$ti1)
+```
+
+* Look at codebook under the Trust in Institutions tab, ARAB4 and LATINO15 have no data on this which explains why it's all missing
+
+# ti2 update
+
+```{r}
+unique(df$ti2)
+```
+
+```{r}
+df <- df %>%
+  mutate(TrustInGovt = ifelse(ti2 %in% c(-1, 0, 7, 8, 9), NA, ti2))
+unique(df$TrustInGovt)
+```
+
+* Options 8 and 9 become NAs
+
+# sc1 update
+
+```{r}
+unique(df$sc1)
+```
+
+* contains nothing that needs to be changed to NA
+
+```{r}
+df <- df %>%
+  mutate(TrustInPeople = ifelse(sc1 %in% c(-1, 0, 7, 8, 9), NA, sc1))
+unique(df$TrustInPeople)
+```
+
+summary of the data
+```{r}
+summary(df)
+```
+
+Variable distribution for ee1
+```{r}
+ggplot(df, aes(x = ee1)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of ee1", x = "ee1", y = "Frequency")
+
+```
+variable distrivution for ee2
+```{r}
+ggplot(df, aes(x = ee2)) +
+  geom_histogram(binwidth = 1, fill = "pink", color = "black") +
+  labs(title = "Distribution of ee2", x = "ee2", y = "Frequency")
+```
+variable distribution for ti1
+```{r}
+ggplot(df, aes(x = ti1)) +
+  geom_histogram(binwidth = 1, fill = "red", color = "black") +
+  labs(title = "Distribution of ti1", x = "ti1", y = "Frequency")
+```
+variable distribution for ti2
+```{r}
+ggplot(df, aes(x = ti2)) +
+  geom_histogram(binwidth = 1, fill = "green", color = "black") +
+  labs(title = "Distribution of ti2", x = "ti2", y = "Frequency")
+```
+variable distibution for sc1
+```{r}
+ggplot(df, aes(x = sc1)) +
+  geom_histogram(binwidth = 1, fill = "green", color = "black") +
+  labs(title = "Distribution of sc1", x = "sc1", y = "Frequency")
+```
+Test Hypothesis 1
+```{r}
+table(df$ti2)
+```
+
